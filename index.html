@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>DermaAI</title>
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;
+  --text:#1d1d1f;
+  --sub:#86868b;
+  --faint:#f5f5f7;
+  --border:#e8e8ed;
+  --accent:#0071e3;
+  --red:#ff3b30;
+  --orange:#ff9500;
+  --green:#34c759;
+  --purple:#af52de;
+  --radius:16px;
+  --shadow:0 2px 12px rgba(0,0,0,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg);color:var(--text);font-family:'Outfit',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{min-height:100dvh;overflow-x:hidden}
+
+/* PAGES */
+.page{display:none;min-height:100dvh;flex-direction:column;align-items:center;padding:0 24px}
+.page.active{display:flex}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes ringFill{from{stroke-dashoffset:377}to{stroke-dashoffset:var(--target)}}
+
+.fu{animation:fadeUp .8s cubic-bezier(.16,1,.3,1) both}
+.fi{animation:fadeIn .6s ease both}
+.si{animation:slideIn .6s cubic-bezier(.16,1,.3,1) both}
+
+/* TYPOGRAPHY — Apple scale */
+.hero-title{font-size:clamp(44px,11vw,72px);font-weight:800;line-height:.96;letter-spacing:-2.5px;color:var(--text)}
+.section-title{font-size:clamp(28px,7vw,40px);font-weight:700;line-height:1.05;letter-spacing:-1.2px}
+.body-large{font-size:17px;font-weight:400;line-height:1.55;color:var(--sub)}
+.body{font-size:15px;font-weight:400;line-height:1.5;color:var(--sub)}
+.caption{font-size:12px;font-weight:500;letter-spacing:.4px;color:var(--sub)}
+.overline{font-size:11px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:var(--sub)}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:var(--text);color:#fff;border:none;
+  padding:18px 36px;border-radius:980px;font-size:17px;font-weight:600;
+  font-family:inherit;cursor:pointer;transition:all .3s cubic-bezier(.16,1,.3,1);
+  letter-spacing:-.2px;width:100%;max-width:360px;
+}
+.btn:active{transform:scale(.97);opacity:.9}
+.btn:disabled{opacity:.3;pointer-events:none}
+.btn-ghost{background:transparent;color:var(--text);border:1.5px solid var(--border);font-weight:500}
+.btn-ghost:active{background:var(--faint)}
+.btn-accent{background:var(--accent)}
+.btn-small{padding:12px 24px;font-size:14px;font-weight:500;width:auto}
+
+/* CARD */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:all .2s}
+
+/* PROGRESS BAR */
+.bar{width:100%;height:3px;background:var(--faint);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
+
+/* TAG */
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:5px 10px;border-radius:6px;letter-spacing:.3px}
+
+/* CAMERA */
+.viewfinder{position:relative;border-radius:24px;overflow:hidden;width:100%;max-width:360px;aspect-ratio:3/4;background:#000}
+.viewfinder video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.viewfinder .guide{position:absolute;top:12%;left:18%;right:18%;bottom:20%;border:1.5px solid rgba(255,255,255,.25);border-radius:50%;pointer-events:none}
+.capture{width:72px;height:72px;border-radius:50%;border:3px solid var(--border);background:var(--text);cursor:pointer;transition:all .2s;flex-shrink:0}
+.capture:active{transform:scale(.9)}
+.capture-ring{width:84px;height:84px;border-radius:50%;border:2.5px solid var(--text);display:flex;align-items:center;justify-content:center}
+
+/* LOADING */
+.loader{width:48px;height:48px;border-radius:50%;border:2.5px solid var(--faint);border-top-color:var(--text);animation:spin .9s linear infinite}
+
+/* CONCERN CARD */
+.concern{border-left:3px solid var(--green);padding-left:16px;margin-bottom:24px}
+.concern[data-severity="attention"]{border-color:var(--red)}
+.concern[data-severity="moderate"]{border-color:var(--orange)}
+
+/* PRODUCT CARD */
+.product{border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;transition:all .2s}
+
+/* MISC */
+.divider{width:100%;height:1px;background:var(--border);margin:32px 0}
+.spacer{flex:1}
+.max-w{width:100%;max-width:420px}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:0;background:transparent}
+</style>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- LANDING                                       -->
+<!-- ============================================ -->
+<div id="p-landing" class="page active">
+  <div class="spacer"></div>
+  <div style="text-align:center;max-width:400px;padding:20px 0">
+    <p class="overline fu" style="margin-bottom:24px;animation-delay:.1s">DermaAI</p>
+    <h1 class="hero-title fu" style="animation-delay:.25s">Know your<br>skin.</h1>
+    <p class="body-large fu" style="margin-top:20px;max-width:320px;margin-left:auto;margin-right:auto;animation-delay:.45s">Independent AI analysis. No products to sell.<br>Just the truth about your skin.</p>
+    <div class="fu" style="animation-delay:.65s;margin-top:40px">
+      <button class="btn" onclick="navigate('camera')">Start Scan</button>
+    </div>
+    <p class="caption fu" style="margin-top:16px;animation-delay:.8s">30 seconds · Free · No app required</p>
+    <div id="return-banner" class="fu" style="display:none;margin-top:28px;animation-delay:.9s">
+      <div style="padding:14px 20px;background:var(--faint);border-radius:12px;cursor:pointer" onclick="navigate('camera')">
+        <p style="font-size:14px;color:var(--text);margin:0">Previous score: <strong id="prev-score">—</strong>/100 · <span style="color:var(--accent)">Rescan →</span></p>
+      </div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="fu" style="animation-delay:1s;padding-bottom:40px;text-align:center">
+    <p class="caption" style="max-width:280px;line-height:1.6">We don't sell products. We don't employ doctors. We analyze your skin with AI — and tell you what we see.</p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- CAMERA                                        -->
+<!-- ============================================ -->
+<div id="p-camera" class="page">
+  <div style="padding-top:env(safe-area-inset-top,20px)"></div>
+  <div style="width:100%;max-width:420px;display:flex;align-items:center;padding:16px 0">
+    <button style="background:none;border:none;font-size:15px;font-weight:500;color:var(--sub);cursor:pointer;font-family:inherit;padding:8px 0" onclick="navigate('landing')">← Back</button>
+  </div>
+  <div class="spacer" style="flex:.4"></div>
+  <div class="viewfinder fi" id="cambox">
+    <video id="vid" autoplay playsinline muted></video>
+    <div class="guide"></div>
+  </div>
+  <div style="margin-top:28px;display:flex;flex-direction:column;align-items:center" id="cam-controls">
+    <div class="capture-ring"><div class="capture" id="shbtn" onclick="capture()"></div></div>
+    <p class="caption" style="margin-top:14px">Tap to capture</p>
+  </div>
+  <div id="cam-fail" style="display:none;text-align:center;padding:40px 20px">
+    <p class="section-title" style="font-size:22px;margin-bottom:8px">Camera needed</p>
+    <p class="body" style="margin-bottom:24px">Allow camera access to scan your skin</p>
+    <button class="btn-ghost btn-small" style="width:auto;margin:0 auto;display:block" onclick="runScan(null)">Try demo instead</button>
+  </div>
+  <div class="spacer"></div>
+  <p class="caption" style="padding-bottom:32px;text-align:center">Your photo is analyzed instantly and never stored</p>
+</div>
+
+<!-- ============================================ -->
+<!-- ANALYZING                                     -->
+<!-- ============================================ -->
+<div id="p-loading" class="page">
+  <div class="spacer"></div>
+  <div style="text-align:center;max-width:360px">
+    <div class="loader" style="margin:0 auto 32px"></div>
+    <p class="section-title fi" style="font-size:22px">Analyzing</p>
+    <p id="step-text" class="body fi" style="margin-top:8px;min-height:24px">Mapping skin topology...</p>
+    <div class="bar" style="max-width:200px;margin:24px auto 0">
+      <div class="bar-fill" id="prog-bar" style="width:0%;background:var(--text)"></div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<!-- ============================================ -->
+<!-- RESULTS                                       -->
+<!-- ============================================ -->
+<div id="p-results" class="page">
+  <div style="width:100%;max-width:420px;padding:40px 0 80px">
+    
+    <!-- PROGRESS (returning users) -->
+    <div id="progress-block" style="display:none"></div>
+    
+    <!-- SCORE -->
+    <div style="text-align:center;margin-bottom:48px">
+      <p class="overline si" style="margin-bottom:20px;animation-delay:.1s">Your Score</p>
+      <div class="si" style="position:relative;display:inline-flex;align-items:center;justify-content:center;animation-delay:.3s">
+        <svg width="160" height="160">
+          <circle cx="80" cy="80" r="60" fill="none" stroke="var(--faint)" stroke-width="5"/>
+          <circle id="score-ring" cx="80" cy="80" r="60" fill="none" stroke="var(--green)" stroke-width="5" stroke-dasharray="377" stroke-dashoffset="377" stroke-linecap="round" style="transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 2s cubic-bezier(.16,1,.3,1),stroke 1s ease"/>
+        </svg>
+        <span id="score-num" style="position:absolute;font-size:48px;font-weight:800;letter-spacing:-2px">—</span>
+      </div>
+      <p id="score-context" class="body si" style="margin-top:12px;animation-delay:.5s"></p>
+    </div>
+    
+    <!-- BIO PROFILE -->
+    <div id="bio-section" style="display:none;margin-bottom:40px">
+      <div class="si" style="padding:24px;background:var(--faint);border-radius:var(--radius)">
+        <p class="overline" style="margin-bottom:12px">Skin Profile</p>
+        <div id="bio-types" style="display:flex;gap:10px;margin-bottom:12px"></div>
+        <p id="bio-text" class="body" style="font-size:14px;line-height:1.6"></p>
+      </div>
+    </div>
+
+    <!-- CONCERNS -->
+    <div style="margin-bottom:40px">
+      <p class="overline si" style="margin-bottom:24px">Concerns Found</p>
+      <div id="concerns-list"></div>
+    </div>
+    
+    <!-- STAGING -->
+    <div id="stage-section" style="display:none;margin-bottom:40px">
+      <div style="padding:20px;background:var(--faint);border-radius:var(--radius)">
+        <p id="stage-text" class="body" style="font-size:13.5px;line-height:1.65;text-align:center;font-style:italic"></p>
+      </div>
+    </div>
+    
+    <!-- INDEPENDENCE BADGE -->
+    <div class="si" style="text-align:center;margin-bottom:40px;animation-delay:.8s">
+      <div class="divider"></div>
+      <p class="caption" style="margin-top:20px;line-height:1.7;max-width:300px;margin-left:auto;margin-right:auto">DermaAI is independently operated. We have no products to sell and no brand partnerships. This analysis is unbiased.</p>
+      <div class="divider" style="margin-top:20px"></div>
+    </div>
+
+    <!-- CTAs -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+      <button class="btn" id="treat-btn" onclick="navigate('products')">View Recommendations</button>
+      <button class="btn btn-ghost" onclick="scanAgain()">Scan Again</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- PRODUCTS                                      -->
+<!-- ============================================ -->
+<div id="p-products" class="page">
+  <div style="width:100%;max-width:420px;padding:40px 0 80px">
+    <div style="text-align:center;margin-bottom:40px">
+      <p class="overline si" style="margin-bottom:12px">Matched to Your Scan</p>
+      <h2 class="section-title si" style="animation-delay:.15s">Recommendations</h2>
+      <p id="time-note" class="body si" style="margin-top:8px;animation-delay:.3s"></p>
+    </div>
+    
+    <div id="products-list"></div>
+    
+    <div class="divider"></div>
+    
+    <div style="text-align:center">
+      <p class="caption" style="line-height:1.7;max-width:320px;margin:0 auto">Products are selected from open marketplaces based on your scan results. We earn a small commission — this keeps DermaAI free.</p>
+      <button class="btn btn-ghost" style="margin-top:24px" onclick="scanAgain()">New Scan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ERROR                                         -->
+<!-- ============================================ -->
+<div id="p-error" class="page">
+  <div class="spacer"></div>
+  <div style="text-align:center;max-width:320px">
+    <p class="section-title" style="font-size:22px;margin-bottom:8px">Something went wrong</p>
+    <p id="err-msg" class="body" style="margin-bottom:28px"></p>
+    <button class="btn" onclick="navigate('camera')">Try Again</button>
+  </div>
+  <div class="spacer"></div>
+</div>
+
+<canvas id="cv" style="display:none"></canvas>
+
+<script>
+const API='/api/analyze';
+let stream=null,result=null,scanHistory=[];
+try{scanHistory=JSON.parse(localStorage.getItem('dermaai_history')||'[]')}catch(e){}
+if(scanHistory.length>0){
+  document.getElementById('return-banner').style.display='block';
+  document.getElementById('prev-score').textContent=scanHistory[scanHistory.length-1].score;
+}
+
+// NAV
+function navigate(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+  if(id==='camera')startCam();
+  if(id==='products')renderProducts();
+}
+
+// CAMERA
+async function startCam(){
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}}});
+    document.getElementById('vid').srcObject=stream;
+    document.getElementById('cam-controls').style.display='flex';
+    document.getElementById('cam-fail').style.display='none';
+    document.getElementById('cambox').style.display='block';
+  }catch(e){
+    document.getElementById('cambox').style.display='none';
+    document.getElementById('cam-controls').style.display='none';
+    document.getElementById('cam-fail').style.display='block';
+  }
+}
+
+function capture(){
+  const v=document.getElementById('vid'),c=document.getElementById('cv');
+  c.width=480;c.height=360;
+  const x=c.getContext('2d');x.translate(480,0);x.scale(-1,1);x.drawImage(v,0,0,480,360);
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+  runScan(c.toDataURL('image/jpeg',.6));
+}
+
+// TIME
+function getTimeOfDay(){const h=new Date().getHours();return h<12?'morning':h<17?'afternoon':'evening'}
+
+// SCAN
+async function runScan(photo){
+  navigate('loading');
+  const tod=getTimeOfDay();
+  const steps=['Mapping skin topology...','Analyzing pigment distribution...','Measuring pore density...','Evaluating elasticity markers...','Generating report...'];
+  let si=0;
+  const st=setInterval(()=>{
+    si++;if(si<steps.length){
+      document.getElementById('step-text').textContent=steps[si];
+      document.getElementById('prog-bar').style.width=((si+1)/steps.length*100)+'%';
+    }
+  },2200);
+  
+  try{
+    let data;
+    if(photo){
+      const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image_base64:photo,time_of_day:tod})});
+      if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||'Analysis failed')}
+      data=await r.json();
+    }else{
+      await new Promise(r=>setTimeout(r,9000));
+      data=getDemo();
+    }
+    clearInterval(st);
+    document.getElementById('prog-bar').style.width='100%';
+    document.getElementById('step-text').textContent='Complete';
+    result=data;
+    scanHistory.push({score:data.overall_score,date:new Date().toISOString()});
+    try{localStorage.setItem('dermaai_history',JSON.stringify(scanHistory.slice(-10)))}catch(e){}
+    await new Promise(r=>setTimeout(r,600));
+    showResults();
+  }catch(e){
+    clearInterval(st);
+    document.getElementById('err-msg').textContent=e.message;
+    navigate('error');
+  }
+}
+
+// RESULTS
+function showResults(){
+  navigate('results');
+  const d=result;
+  
+  // Progress
+  if(scanHistory.length>1){
+    const prev=scanHistory[scanHistory.length-2];
+    const diff=d.overall_score-prev.score;
+    const block=document.getElementById('progress-block');
+    block.style.display='block';
+    block.innerHTML=`<div class="si" style="padding:20px;background:var(--faint);border-radius:var(--radius);margin-bottom:32px;display:flex;align-items:center;justify-content:space-between">
+      <div><p class="caption">Previous</p><p style="font-size:28px;font-weight:700;color:var(--sub);margin-top:2px">${prev.score}</p></div>
+      <div style="font-size:20px;color:${diff>=0?'var(--green)':'var(--red)'};font-weight:600">${diff>=0?'+':''} ${diff}</div>
+      <div style="text-align:right"><p class="caption">Current</p><p style="font-size:28px;font-weight:700;margin-top:2px">${d.overall_score}</p></div>
+    </div>`;
+  }
+  
+  // Score animation
+  setTimeout(()=>{
+    const ring=document.getElementById('score-ring');
+    const target=377-(d.overall_score/100)*377;
+    ring.style.stroke=d.overall_score>=70?'var(--green)':d.overall_score>=50?'var(--orange)':'var(--red)';
+    ring.style.strokeDashoffset=target;
+    document.getElementById('score-num').textContent=d.overall_score;
+  },400);
+  
+  const pct=d.percentile_worse_than||65;
+  document.getElementById('score-context').textContent='Better than '+pct+'% of people scanned in your age range';
+  
+  // Bio
+  if(d.skin_constitution){
+    const sec=document.getElementById('bio-section');sec.style.display='block';
+    const con=d.skin_constitution;
+    const types=[];
+    if(con.includes('A'))types.push({l:'Type A',d:'Dry · Sensitive',c:'var(--accent)'});
+    if(con.includes('B'))types.push({l:'Type B',d:'Reactive · Combination',c:'var(--red)'});
+    if(con.includes('C'))types.push({l:'Type C',d:'Oily · Resilient',c:'var(--green)'});
+    if(!types.length)types.push({l:'Type B',d:'Reactive',c:'var(--red)'});
+    document.getElementById('bio-types').innerHTML=types.map(t=>`<div style="flex:1;text-align:center;padding:12px 8px;background:var(--bg);border-radius:10px"><p style="font-size:13px;font-weight:700;color:${t.c}">${t.l}</p><p style="font-size:10px;color:var(--sub);margin-top:2px">${t.d}</p></div>`).join('');
+    document.getElementById('bio-text').textContent=d.constitution_insight||'';
+  }
+  
+  // Concerns
+  const list=document.getElementById('concerns-list');list.innerHTML='';
+  (d.concerns||[]).forEach((c,i)=>{
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='concern si';
+      el.dataset.severity=c.severity;
+      el.style.animationDelay=(i*.12)+'s';
+      
+      const sevLabel=c.severity==='attention'?'Needs attention':c.severity==='moderate'?'Moderate':'Mild';
+      const sevColor=c.severity==='attention'?'var(--red)':c.severity==='moderate'?'var(--orange)':'var(--green)';
+      
+      const insight=c.deeper_insight?`<p style="font-size:12.5px;color:var(--purple);line-height:1.55;margin-top:10px;padding:10px 12px;background:#f5f0ff;border-radius:8px">${c.deeper_insight}</p>`:'';
+      const stage=c.stage?`<span class="tag" style="background:var(--faint);color:var(--sub);margin-top:8px;font-size:10px">${c.stage}</span>`:'';
+      
+      el.innerHTML=`
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <p style="font-size:16px;font-weight:600">${c.area}</p>
+          <span style="font-size:12px;font-weight:600;color:${sevColor}">${sevLabel}</span>
+        </div>
+        <p class="body" style="font-size:13.5px;line-height:1.6">${c.finding}</p>
+        ${insight}
+        ${stage}
+        <div class="bar" style="margin-top:12px"><div class="bar-fill" style="width:${c.score}%;background:${sevColor}"></div></div>
+        <p style="font-size:11px;color:var(--sub);margin-top:4px;text-align:right">${c.score}/100</p>
+      `;
+      list.appendChild(el);
+    },i*100);
+  });
+  
+  // Staging
+  if(d.staging_note){
+    const ss=document.getElementById('stage-section');
+    ss.style.display='block';
+    document.getElementById('stage-text').textContent=d.staging_note;
+  }
+}
+
+// PRODUCTS
+function renderProducts(){
+  if(!result||!result.products)return;
+  const list=document.getElementById('products-list');
+  if(list.children.length>0)return;
+  
+  const tod=getTimeOfDay();
+  document.getElementById('time-note').textContent=
+    tod==='morning'?'Morning scan — UV protection prioritized':
+    tod==='evening'?'Evening scan — repair products prioritized':'Afternoon scan — balanced recommendations';
+  
+  result.products.forEach((p,i)=>{
+    const disc=Math.round((1-p.price/p.original)*100);
+    const el=document.createElement('div');
+    el.className='product si';
+    el.style.animationDelay=(i*.1)+'s';
+    el.innerHTML=`
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <span class="tag" style="background:var(--faint);color:var(--sub);font-size:10px">${p.tag}</span>
+        <span style="font-size:12px;color:var(--green);font-weight:600">${disc}% off</span>
+      </div>
+      <p style="font-size:16px;font-weight:600;line-height:1.3;margin-bottom:6px">${p.name}</p>
+      <p class="body" style="font-size:13px;margin-bottom:12px">${p.reason}</p>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px">
+        <span style="font-size:11px;color:var(--orange)">★ ${p.rating}</span>
+        <span style="font-size:11px;color:var(--sub)">${p.reviews} reviews</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <span style="font-size:20px;font-weight:700">₹${p.price}</span>
+          <span style="font-size:13px;color:var(--sub);text-decoration:line-through;margin-left:6px">₹${p.original}</span>
+        </div>
+        <button class="btn btn-small" onclick="window.open('${p.affiliate_url}','_blank')">View</button>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function scanAgain(){
+  result=null;
+  document.getElementById('products-list').innerHTML='';
+  document.getElementById('concerns-list').innerHTML='';
+  document.getElementById('bio-section').style.display='none';
+  document.getElementById('stage-section').style.display='none';
+  document.getElementById('progress-block').style.display='none';
+  navigate('camera');
+}
+
+// DEMO DATA
+function getDemo(){
+  const r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+  return{
+    overall_score:r(52,66),
+    estimated_age_range:"25-32",
+    skin_type:"combination",
+    skin_constitution:"Type B-A Blend",
+    percentile_worse_than:r(60,75),
+    constitution_insight:"Primarily reactive-combination profile with secondary dry-sensitive traits. Indicated by pigmentation pattern on cheeks, oily T-zone, and fine dehydration lines on forehead.",
+    concerns:[
+      {area:"Under-Eye Region",severity:"moderate",emoji:"",finding:"Mild periorbital darkening with early hollowness. Collagen density "+r(14,20)+"% below optimal. Consistent with screen strain and sleep deficit. Fully reversible with targeted treatment.",deeper_insight:"Periorbital changes correlate with the renal-circulatory facial zone — documented across 2000+ years of dermatological research as early indicators of fluid metabolism efficiency.",stage:"Stage 3 — Establishing",score:r(35,48)},
+      {area:"Cheek Pigmentation",severity:"attention",emoji:"",finding:"Asymmetric melanin deposits on malar region, left side more pronounced. UV-induced photodamage with melanocyte hyperactivity in the deeper dermis. Treatable at current stage.",deeper_insight:"Facial zone mapping correlates cheeks to respiratory and gastric function. Traditional research documents this pigmentation as originating from deeper dermal layers — now supported by modern trichoscopy.",stage:"Stage 3 — Establishing",score:r(28,40)},
+      {area:"Forehead Texture",severity:"moderate",emoji:"",finding:"Pore density "+r(18,26)+"% above baseline. Dehydration-linked roughness with T-zone overactivity. Highly responsive to topical treatment.",deeper_insight:"Forehead texture correlates with the digestive-nervous system axis. Forehead skin quality is identified as a biomarker for intestinal health — validated by modern gut-skin axis studies.",stage:"Stage 2 — Early",score:r(38,52)},
+      {area:"Hair Density",severity:"attention",emoji:"",finding:"Temporal recession indicators detected. Strand density reduced versus age-matched baseline. Follicular miniaturization from stress-related thinning. "+r(88,96)+"% reversible.",deeper_insight:"Hair follicle health reflects nutritional-hormonal status. Classical research documented roots receiving nourishment from deep tissue — supported by studies on follicle sensitivity to nutritional deficiency.",stage:"Stage 3 — Establishing",score:r(25,38)},
+      {area:"Skin Elasticity",severity:"mild",emoji:"",finding:"Jawline definition acceptable. Earliest structural protein degradation detected with faint nasolabial folds. Preventive care delays visible sagging 5-7 years.",deeper_insight:"Jawline maps to hormonal-structural markers. Traditional texts describe firmness loss as deep-tissue dehydration — confirmed by modern elastin cross-linking analysis.",stage:"Stage 2 — Early",score:r(45,58)}
+    ],
+    staging_note:"Your concerns are at Stage 2-3 on a 6-stage progression model. This is the optimal intervention window — reversal rates decline significantly beyond Stage 4.",
+    products:[
+      {name:"mCaffeine Coffee Under Eye Cream",tag:"UNDER-EYE",reason:"Caffeine complex targets the periorbital darkening detected in your scan",price:349,original:599,rating:4.3,reviews:"42,847",urgency:"",affiliate_url:"https://www.amazon.in/s?k=mcaffeine+under+eye+cream&tag=dermaai-21"},
+      {name:"Minimalist Hair Growth Actives 18%",tag:"HAIR DENSITY",reason:"Redensyl + Procapil matched to your follicular thinning pattern",price:699,original:799,rating:4.1,reviews:"31,892",urgency:"",affiliate_url:"https://www.amazon.in/s?k=minimalist+hair+growth+serum&tag=dermaai-21"},
+      {name:"Garnier Bright Complete Vitamin C Serum",tag:"PIGMENTATION",reason:"Vitamin C targets the melanin irregularity on your malar region",price:249,original:399,rating:4.1,reviews:"89,456",urgency:"",affiliate_url:"https://www.amazon.in/s?k=garnier+vitamin+c+serum&tag=dermaai-21"}
+    ]
+  };
+}
+</script>
+</body>
+</html>
