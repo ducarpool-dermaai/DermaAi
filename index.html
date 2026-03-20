@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>DermaAI — Clinical Skin Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{background:#0a0a0a;color:#fff;font-family:'Plus Jakarta Sans',system-ui,sans-serif;overflow-x:hidden;min-height:100dvh}
+.pg{display:none;min-height:100dvh;flex-direction:column;align-items:center;padding:20px;animation:fu .5s ease}
+.pg.on{display:flex}
+@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pu{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes si{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+@keyframes gl{0%,100%{box-shadow:0 0 20px rgba(220,38,38,.2)}50%{box-shadow:0 0 40px rgba(220,38,38,.4)}}
+@keyframes sl{0%{top:0}100%{top:100%}}
+.d{display:inline-block;width:7px;height:7px;border-radius:50%;background:#ef4444;animation:pu 1.5s ease-in-out infinite;margin-right:6px}.d.g{background:#22c55e}
+.b{background:linear-gradient(135deg,#dc2626,#991b1b);border:none;color:#fff;padding:16px 40px;border-radius:14px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 0 30px rgba(220,38,38,.25);transition:all .2s;width:100%;max-width:380px;letter-spacing:.3px}
+.b:active{transform:scale(.97)}.b:disabled{opacity:.5}
+.b2{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);box-shadow:none;font-weight:500;font-size:15px}
+.tg{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:6px;display:inline-block}
+.s{font-size:12px;color:rgba(255,255,255,.28);margin-top:8px;text-align:center}
+.lb{font-size:11px;color:rgba(255,255,255,.28);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.cc{background:rgba(255,255,255,.025);border-radius:14px;padding:16px;margin-bottom:12px;border:1px solid rgba(255,255,255,.05);animation:si .4s ease both}
+.pc{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px;margin-bottom:14px}
+.br{width:100%;height:3px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}.br .f{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.w{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);border-radius:12px;padding:16px;margin:20px 0}.w p{font-size:13.5px;color:#fca5a5;line-height:1.6}
+.cb{position:relative;border-radius:20px;overflow:hidden;border:2px solid rgba(255,255,255,.08);width:100%;max-width:340px}
+.cb video{width:100%;display:block;transform:scaleX(-1)}
+.cb .ov{position:absolute;top:10%;left:16%;right:16%;bottom:10%;border:2px dashed rgba(255,255,255,.18);border-radius:50%;pointer-events:none}
+.cb .sn{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(220,38,38,.6),transparent);animation:sl 2.5s linear infinite;pointer-events:none}
+.sh{width:68px;height:68px;border-radius:50%;border:4px solid rgba(255,255,255,.25);background:linear-gradient(135deg,#dc2626,#991b1b);cursor:pointer;box-shadow:0 0 24px rgba(220,38,38,.35);margin-top:20px}.sh:active{transform:scale(.88)}
+.sp{width:72px;height:72px;border-radius:50%;border:3px solid rgba(220,38,38,.18);border-top-color:#dc2626;animation:sp 1s linear infinite;margin-bottom:28px}
+.inp{width:100%;max-width:320px;padding:14px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;font-size:16px;font-family:inherit;outline:none;text-align:center}
+.inp:focus{border-color:#dc2626;box-shadow:0 0 20px rgba(220,38,38,.15)}
+.inp::placeholder{color:rgba(255,255,255,.25)}
+.lock{position:relative;overflow:hidden}.lock::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent 30%,#0a0a0a 90%);pointer-events:none}
+.prog-card{background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15);border-radius:14px;padding:16px;margin-bottom:16px}
+.prog-card.neg{background:rgba(239,68,68,.05);border-color:rgba(239,68,68,.15)}
+.share-btn{background:linear-gradient(135deg,#6366f1,#4f46e5);box-shadow:0 0 20px rgba(99,102,241,.25)}
+.friend-btn{background:linear-gradient(135deg,#0ea5e9,#0284c7);box-shadow:0 0 20px rgba(14,165,233,.25)}
+.time-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.45);margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<!-- LANDING -->
+<div id="p-land" class="pg on">
+<div style="position:fixed;top:16px;right:16px;display:flex;align-items:center;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:20px;padding:5px 12px;font-size:11px;z-index:10"><span class="d"></span><span style="color:#fca5a5" id="ctr">48,923 scans today</span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px 0;max-width:420px">
+<div style="font-size:11px;color:rgba(255,255,255,.32);letter-spacing:3px;text-transform:uppercase;margin-bottom:16px">Derma·AI Clinical Analysis</div>
+<h1 style="font-size:clamp(30px,7.5vw,48px);font-weight:800;line-height:1.1;margin-bottom:14px;background:linear-gradient(135deg,#fff,#a1a1aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Your skin is aging.<br>Do you know where?</h1>
+<p style="font-size:16px;color:rgba(255,255,255,.4);max-width:360px;line-height:1.6;margin-bottom:10px">AI scans 47 dermatological markers invisible to the naked eye. Free clinical-grade analysis in 30 seconds.</p>
+<div style="display:flex;gap:14px;margin-bottom:28px;font-size:12px;color:rgba(255,255,255,.28);flex-wrap:wrap;justify-content:center"><span>✓ 30 seconds</span><span>✓ 100% Free</span><span>✓ No app needed</span></div>
+<button class="b" onclick="go('cam')">Scan My Face Free →</button>
+<div id="prev-scan-banner" style="display:none;margin-top:16px;padding:12px 18px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:12px;max-width:360px;text-align:center;cursor:pointer" onclick="go('cam')">
+<p style="font-size:13px;color:#86efac;margin:0">📊 <strong>Welcome back!</strong> Your last score was <span id="prev-score">—</span>/100. Rescan to track progress →</p>
+</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:24px">
+<div><span style="font-size:26px">👩🏽</span><span style="font-size:26px;margin-left:-6px">👨🏻</span><span style="font-size:26px;margin-left:-6px">👩🏼</span><span style="font-size:26px;margin-left:-6px">👨🏾</span><span style="font-size:26px;margin-left:-6px">👩🏻</span></div>
+<div style="font-size:12px;color:rgba(255,255,255,.32)"><strong style="color:rgba(255,255,255,.55)">4.8★</strong> from 2,34,000+ users</div>
+</div>
+<div style="margin-top:28px;padding:18px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.1);border-radius:12px;max-width:380px">
+<p style="font-size:13px;color:rgba(255,255,255,.4);line-height:1.65;font-style:italic">"I scanned, then my friend scanned. Her score was 71, mine was 54. That comparison alone made me start a skincare routine."</p>
+<p style="font-size:11px;color:rgba(255,255,255,.22);margin-top:10px">— Ananya R., Delhi</p>
+</div>
+</div></div>
+
+<!-- CAMERA -->
+<div id="p-cam" class="pg">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%">
+<div style="font-size:11px;color:rgba(255,255,255,.32);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center"><span class="d g"></span> Live Derma Scan</div>
+<div class="cb" id="cambox"><video id="vid" autoplay playsinline muted></video><div class="ov"></div><div class="sn"></div><div style="position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.45)">Position your face inside the oval</div></div>
+<button class="sh" id="shbtn" onclick="capture()" style="display:none"></button>
+<div id="camfail" style="display:none;text-align:center;padding:40px 20px"><div style="font-size:44px;margin-bottom:14px">📸</div><h3 style="font-size:18px;margin-bottom:6px">Camera access needed</h3><p style="font-size:14px;color:rgba(255,255,255,.38);margin-bottom:20px">Allow camera or try the demo</p><button class="b b2" onclick="runScan(null)">Continue with Demo →</button></div>
+<p class="s" id="camsub">Photo is analyzed in real-time and never stored</p>
+</div></div>
+
+<!-- ANALYZING -->
+<div id="p-load" class="pg">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px">
+<div class="sp"></div>
+<h2 style="font-size:19px;font-weight:600;margin-bottom:8px">AI Analysis in Progress</h2>
+<p id="steptxt" style="color:#dc2626;font-size:13.5px;margin-bottom:28px;min-height:20px">Initializing...</p>
+<div class="br" style="max-width:260px"><div class="f" id="prog" style="width:0%;background:linear-gradient(90deg,#dc2626,#f87171)"></div></div>
+<div id="timebadge" class="time-badge" style="margin-top:20px"></div>
+<p class="s" style="margin-top:8px">Scanning 47 dermatological markers</p>
+<div id="pv" style="margin-top:28px;width:80px;height:80px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.1);display:none"><img id="pvimg" style="width:100%;height:100%;object-fit:cover"></div>
+</div></div>
+
+<!-- WHATSAPP GATE -->
+<div id="p-gate" class="pg">
+<div style="width:100%;max-width:420px;padding-bottom:40px">
+<div style="text-align:center;margin:10px 0 20px">
+<div class="lb" style="margin-bottom:18px">Preliminary Results</div>
+<div style="position:relative;display:inline-flex;align-items:center;justify-content:center">
+<svg width="130" height="130"><circle cx="65" cy="65" r="56" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/><circle id="gring" cx="65" cy="65" r="56" fill="none" stroke="#eab308" stroke-width="6" stroke-dasharray="352" stroke-dashoffset="352" stroke-linecap="round" style="transition:stroke-dashoffset 1.8s cubic-bezier(.4,0,.2,1);transform:rotate(-90deg);transform-origin:center"/></svg>
+<span id="gscore" style="position:absolute;font-size:34px;font-weight:800">—</span>
+</div>
+<p style="color:rgba(255,255,255,.32);font-size:12.5px;margin-top:10px">Lower than <strong style="color:#f87171" id="gpct">—%</strong> of users your age</p>
+</div>
+<div class="lb">Preview — 2 of 5 concerns found</div>
+<div id="gateconcerns"></div>
+<div class="lock" style="min-height:120px;margin-bottom:20px">
+<div class="cc" style="opacity:.4"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:14.5px;font-weight:600">🔒 Concern #3</span><span class="tg" style="background:rgba(239,68,68,.1);color:#ef4444;font-size:9px">LOCKED</span></div><p style="font-size:12.5px;color:rgba(255,255,255,.2)">█████ ████ ██████ ████████ ███ ██████ ████ █████████ ██████</p></div>
+<div class="cc" style="opacity:.25"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="font-size:14.5px;font-weight:600">🔒 Concern #4</span></div><p style="font-size:12.5px;color:rgba(255,255,255,.15)">█████ ████ ██████ ████████</p></div>
+</div>
+<div style="text-align:center;padding:20px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:16px">
+<div style="font-size:32px;margin-bottom:8px">🔓</div>
+<h3 style="font-size:17px;font-weight:600;margin-bottom:6px">Unlock Your Complete Analysis</h3>
+<p style="font-size:13px;color:rgba(255,255,255,.38);margin-bottom:16px;line-height:1.5">Enter your WhatsApp number to unlock all 5 concerns + your personalized treatment plan + 30-day progress rescan reminder</p>
+<input class="inp" id="wainput" type="tel" placeholder="WhatsApp number (e.g. 98765 43210)" maxlength="15">
+<p class="s" style="margin-bottom:16px">We only send your rescan reminder. No spam ever.</p>
+<button class="b" onclick="unlockResults()">Unlock Full Report →</button>
+<p style="font-size:11px;color:rgba(255,255,255,.2);margin-top:12px;cursor:pointer;text-decoration:underline" onclick="skipGate()">Skip for now</p>
+</div>
+</div></div>
+
+<!-- FULL RESULTS -->
+<div id="p-res" class="pg">
+<div style="width:100%;max-width:420px;padding-bottom:40px">
+<div id="progress-section" style="display:none;margin:10px 0 20px"></div>
+<div style="text-align:center;margin:10px 0 28px">
+<div class="lb" style="margin-bottom:18px">Your Complete Analysis</div>
+<div style="position:relative;display:inline-flex;align-items:center;justify-content:center">
+<svg width="130" height="130"><circle cx="65" cy="65" r="56" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="6"/><circle id="rring" cx="65" cy="65" r="56" fill="none" stroke="#eab308" stroke-width="6" stroke-dasharray="352" stroke-dashoffset="352" stroke-linecap="round" style="transition:stroke-dashoffset 1.8s cubic-bezier(.4,0,.2,1);transform:rotate(-90deg);transform-origin:center"/></svg>
+<span id="rscore" style="position:absolute;font-size:34px;font-weight:800">—</span>
+</div>
+<p style="color:rgba(255,255,255,.32);font-size:12.5px;margin-top:10px">Lower than <strong style="color:#f87171" id="rpct">—%</strong> of users your age</p>
+<p id="rinfo" style="font-size:11px;color:rgba(255,255,255,.22);margin-top:4px"></p>
+</div>
+<!-- DOSHA ASSESSMENT -->
+<div id="dosha-panel" style="display:none;background:linear-gradient(135deg,rgba(251,191,36,.04),rgba(245,158,11,.02));border:1px solid rgba(251,191,36,.15);border-radius:16px;padding:18px;margin-bottom:20px">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:18px">🕉️</span><span style="font-size:14px;font-weight:700;color:#fbbf24">Ayurvedic Dosha Assessment</span><span class="tg" style="background:rgba(251,191,36,.1);color:#fbbf24;font-size:8px;margin-left:auto">CHARAKA · SUSHRUTA · ASHTANGA HRIDAYA</span></div>
+<div id="dosha-primary" style="display:flex;gap:12px;margin-bottom:10px"></div>
+<p id="dosha-explain" style="font-size:12.5px;color:rgba(255,255,255,.4);line-height:1.6;margin:0"></p>
+</div>
+<div class="lb">All Concerns (<span id="rcc">5</span>)</div>
+<div id="rconcerns"></div>
+<div class="w" id="rwarn" style="display:none"><p>⚠️ <strong id="rwc">3 of 5</strong> concerns are reversible right now. Without intervention, they worsen <strong>40-60% within 6 months</strong>.</p></div>
+<!-- AYURVEDIC NOTE -->
+<div id="ayur-note-box" style="display:none;background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.1);border-radius:12px;padding:14px;margin-bottom:16px;text-align:center"><p id="ayur-note" style="font-size:12.5px;color:#fbbf24;line-height:1.6;margin:0;font-style:italic"></p></div>
+<p id="rnote" style="display:none;font-size:13px;color:rgba(255,255,255,.45);text-align:center;margin-bottom:16px;line-height:1.5;font-style:italic"></p>
+<!-- SHARE BUTTON -->
+<button class="b share-btn" id="sharebtn" style="display:none;margin-bottom:12px" onclick="shareScore()">📤 Share My Score Card</button>
+<button class="b" id="treatbtn" style="display:none" onclick="go('prod')">View My Treatment Plan →</button>
+<!-- SCAN A FRIEND -->
+<button class="b friend-btn" id="friendbtn" style="display:none;margin-top:12px" onclick="scanFriend()">👥 Scan a Friend & Compare</button>
+<p class="s" id="treatsub" style="display:none">AI-matched to your specific scan</p>
+</div></div>
+
+<!-- PRODUCTS -->
+<div id="p-prod" class="pg">
+<div style="width:100%;max-width:420px;padding-bottom:40px">
+<div style="text-align:center;margin:10px 0 6px">
+<div class="lb">Your Personalized Treatment</div>
+<h2 style="font-size:20px;font-weight:700;margin-bottom:4px">AI-Matched to Your Scan</h2>
+<p id="time-msg" style="font-size:12.5px;color:rgba(255,255,255,.35)"></p>
+</div>
+<div style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.2);border-radius:10px;padding:10px 16px;text-align:center;margin-bottom:20px;display:flex;align-items:center;justify-content:center;gap:6px"><span class="d"></span><span style="font-size:12.5px;color:#fca5a5">Scan pricing expires in <strong style="color:#ef4444;font-family:monospace" id="tmr">14:59</strong></span></div>
+<div id="prods"></div>
+<div style="background:linear-gradient(135deg,rgba(220,38,38,.06),rgba(220,38,38,.02));border:1px solid rgba(220,38,38,.15);border-radius:18px;padding:22px;text-align:center;margin-top:8px">
+<h3 style="font-size:16px;font-weight:600;margin-bottom:4px">Complete Treatment Bundle</h3>
+<p style="font-size:12.5px;color:rgba(255,255,255,.35);margin-bottom:14px">All 3 products matched to your scan</p>
+<div style="margin-bottom:14px"><span id="bprice" style="font-size:28px;font-weight:800">—</span><span id="borig" style="font-size:15px;color:rgba(255,255,255,.25);text-decoration:line-through;margin-left:8px">—</span><span id="bsave" class="tg" style="background:rgba(220,38,38,.15);color:#f87171;margin-left:8px;font-size:11px">—</span></div>
+<button class="b" style="animation:gl 2s ease-in-out infinite" onclick="buyAll()">Get My Complete Treatment →</button>
+<p class="s">Free delivery · 30-day guarantee</p>
+</div>
+<div style="text-align:center;margin-top:28px;padding:16px;background:rgba(255,255,255,.02);border-radius:12px">
+<p style="font-size:13px;color:rgba(255,255,255,.32);line-height:1.6">📅 Your <strong style="color:rgba(255,255,255,.5)">30-Day Progress Rescan</strong> is scheduled.</p>
+</div>
+<button class="b friend-btn" style="margin-top:16px" onclick="scanFriend()">👥 Scan a Friend & Compare Scores</button>
+</div></div>
+
+<!-- ERROR -->
+<div id="p-err" class="pg">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
+<div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:14px;padding:24px;text-align:center;max-width:360px">
+<div style="font-size:40px;margin-bottom:12px">⚠️</div>
+<h3 style="font-size:18px;margin-bottom:8px">Analysis Failed</h3>
+<p id="errmsg" style="font-size:14px;color:rgba(255,255,255,.4);margin-bottom:20px;line-height:1.5"></p>
+<button class="b" onclick="go('cam')" style="max-width:260px;font-size:15px;padding:14px 30px">Try Again</button>
+</div></div></div>
+
+<!-- SHARE MODAL -->
+<div id="sharemodal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+<canvas id="sharecanvas" width="540" height="540" style="max-width:90%;border-radius:16px"></canvas>
+<div style="display:flex;gap:12px;margin-top:20px">
+<button class="b" style="max-width:180px;font-size:14px;padding:12px 20px" onclick="downloadShare()">💾 Save Image</button>
+<button class="b b2" style="max-width:180px;font-size:14px;padding:12px 20px" onclick="whatsappShare()">📱 WhatsApp</button>
+</div>
+<p style="font-size:12px;color:rgba(255,255,255,.3);margin-top:12px;cursor:pointer" onclick="closeShare()">✕ Close</p>
+</div>
+
+<canvas id="cv" style="display:none"></canvas>
+
+<script>
+const API='/api/analyze';
+let stream=null,result=null,waNum='',scanHistory=[];
+
+// Load history
+try{scanHistory=JSON.parse(localStorage.getItem('dermaai_history')||'[]')}catch(e){}
+
+// Show return banner
+if(scanHistory.length>0){
+  document.getElementById('prev-scan-banner').style.display='block';
+  document.getElementById('prev-score').textContent=scanHistory[scanHistory.length-1].score;
+}
+
+// Time of day
+function getTimeOfDay(){const h=new Date().getHours();if(h<12)return'morning';if(h<17)return'afternoon';return'night'}
+function getTimeEmoji(){const t=getTimeOfDay();return t==='morning'?'☀️':t==='night'?'🌙':'🌤️'}
+function getTimeMsg(){const t=getTimeOfDay();return t==='morning'?'Morning scan — UV protection products prioritized for your day ahead':t==='night'?'Night scan — overnight repair products prioritized for maximum absorption':'Afternoon scan — refresh & protect products matched to mid-day needs'}
+
+// NAV
+function go(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));document.getElementById('p-'+id).classList.add('on');window.scrollTo(0,0);if(id==='cam')startCam();if(id==='prod'){renderProds();startTimer()}}
+
+// COUNTER
+let cnt=48923;setInterval(()=>{cnt+=Math.floor(Math.random()*3);const e=document.getElementById('ctr');if(e)e.textContent=cnt.toLocaleString()+' scans today'},4000);
+
+// CAMERA
+async function startCam(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:640},height:{ideal:480}}});document.getElementById('vid').srcObject=stream;document.getElementById('shbtn').style.display='block';document.getElementById('camfail').style.display='none';document.getElementById('cambox').style.display='block'}catch(e){document.getElementById('cambox').style.display='none';document.getElementById('camfail').style.display='block';document.getElementById('camsub').style.display='none'}}
+
+function capture(){const v=document.getElementById('vid'),c=document.getElementById('cv');c.width=480;c.height=360;const x=c.getContext('2d');x.translate(480,0);x.scale(-1,1);x.drawImage(v,0,0,480,360);if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}runScan(c.toDataURL('image/jpeg',.6))}
+
+// SCAN
+async function runScan(photo){
+  go('load');
+  const tod=getTimeOfDay();
+  document.getElementById('timebadge').textContent=getTimeEmoji()+' '+tod.charAt(0).toUpperCase()+tod.slice(1)+' scan mode';
+  if(photo){document.getElementById('pvimg').src=photo;document.getElementById('pv').style.display='block'}
+  const steps=['Mapping facial geometry...','Analyzing melanin distribution...','Measuring pore density...','Assessing collagen markers...','Evaluating follicle health...','Cross-referencing 2.4M profiles...','Generating report...'];
+  let si=0;const st=setInterval(()=>{si++;if(si<steps.length){document.getElementById('steptxt').textContent=steps[si];document.getElementById('prog').style.width=((si+1)/steps.length*100)+'%'}},1800);
+  try{
+    let a;
+    if(photo){
+      const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image_base64:photo,time_of_day:tod})});
+      if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||'Failed')}
+      a=await r.json()
+    }else{await new Promise(r=>setTimeout(r,8000));a=getDemo()}
+    clearInterval(st);document.getElementById('prog').style.width='100%';document.getElementById('steptxt').textContent='Complete!';
+    result=a;result._tod=tod;
+    // Save to history
+    scanHistory.push({score:a.overall_score,date:new Date().toISOString(),concerns:a.concerns.map(c=>({area:c.area,score:c.score}))});
+    try{localStorage.setItem('dermaai_history',JSON.stringify(scanHistory.slice(-10)))}catch(e){}
+    await new Promise(r=>setTimeout(r,800));
+    showGate()
+  }catch(e){clearInterval(st);document.getElementById('errmsg').textContent=e.message||'Error';go('err')}
+}
+
+// WHATSAPP GATE
+function showGate(){
+  go('gate');const d=result;
+  setTimeout(()=>{const r=document.getElementById('gring');r.style.strokeDashoffset=352-(d.overall_score/100)*352;r.style.stroke=d.overall_score>=70?'#22c55e':d.overall_score>=50?'#eab308':'#ef4444';document.getElementById('gscore').textContent=d.overall_score},400);
+  document.getElementById('gpct').textContent=d.percentile_worse_than+'%';
+  const box=document.getElementById('gateconcerns');box.innerHTML='';
+  const sc=s=>s==='attention'?'#ef4444':s==='moderate'?'#eab308':'#22c55e';
+  const sl=s=>s==='attention'?'NEEDS ATTENTION':s==='moderate'?'MODERATE':'MILD';
+  const sb=s=>s==='attention'?'rgba(239,68,68,.1)':s==='moderate'?'rgba(234,179,8,.1)':'rgba(34,197,94,.1)';
+  d.concerns.slice(0,2).forEach((c,i)=>{
+    setTimeout(()=>{const e=document.createElement('div');e.className='cc';e.style.borderLeft='3px solid '+sc(c.severity);e.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px"><span style="font-size:14.5px;font-weight:600">${c.emoji} ${c.area}</span><span class="tg" style="background:${sb(c.severity)};color:${sc(c.severity)};font-size:9px">${sl(c.severity)}</span></div><p style="font-size:12.5px;color:rgba(255,255,255,.42);line-height:1.6">${c.finding}</p><div style="margin-top:10px;display:flex;align-items:center;gap:8px"><div class="br" style="flex:1"><div class="f" style="width:${c.score}%;background:${sc(c.severity)}"></div></div><span style="font-size:11px;color:rgba(255,255,255,.28)">${c.score}/100</span></div>`;box.appendChild(e);if(navigator.vibrate&&c.severity==='attention')navigator.vibrate(50)},i*600)
+  });
+}
+
+function unlockResults(){waNum=document.getElementById('wainput').value.replace(/\D/g,'');if(waNum.length<10){document.getElementById('wainput').style.borderColor='#ef4444';return}showFullResults()}
+function skipGate(){showFullResults()}
+
+// FULL RESULTS
+function showFullResults(){
+  go('res');const d=result;
+  // Progress comparison
+  if(scanHistory.length>1){
+    const prev=scanHistory[scanHistory.length-2];const ps=document.getElementById('progress-section');ps.style.display='block';
+    const diff=d.overall_score-prev.score;const improved=diff>0;
+    ps.innerHTML=`<div class="prog-card ${improved?'':'neg'}"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:14px;font-weight:600">${improved?'📈':'📉'} Progress Since Last Scan</span><span style="font-size:12px;color:rgba(255,255,255,.35)">${new Date(prev.date).toLocaleDateString()}</span></div><div style="display:flex;align-items:center;gap:16px"><div style="text-align:center"><span style="font-size:24px;font-weight:700;color:rgba(255,255,255,.4)">${prev.score}</span><br><span style="font-size:10px;color:rgba(255,255,255,.25)">BEFORE</span></div><div style="font-size:24px;color:${improved?'#22c55e':'#ef4444'}">${improved?'→ +'+diff:'→ '+diff}</div><div style="text-align:center"><span style="font-size:24px;font-weight:700">${d.overall_score}</span><br><span style="font-size:10px;color:rgba(255,255,255,.25)">NOW</span></div></div>${improved?'<p style="font-size:12px;color:#86efac;margin-top:10px">Your skin is responding to care. Keep going for optimal results.</p>':'<p style="font-size:12px;color:#fca5a5;margin-top:10px">Your concerns have progressed. Targeted treatment is strongly recommended now.</p>'}</div>`;
+  }
+  setTimeout(()=>{const r=document.getElementById('rring');r.style.strokeDashoffset=352-(d.overall_score/100)*352;r.style.stroke=d.overall_score>=70?'#22c55e':d.overall_score>=50?'#eab308':'#ef4444';document.getElementById('rscore').textContent=d.overall_score},400);
+  document.getElementById('rpct').textContent=d.percentile_worse_than+'%';
+  document.getElementById('rcc').textContent=d.concerns.length;
+  if(d.estimated_age_range&&d.skin_type)document.getElementById('rinfo').textContent='Est. age: '+d.estimated_age_range+' · Skin: '+d.skin_type;
+  // DOSHA PANEL
+  if(d.dosha_assessment){const da=d.dosha_assessment;const dp=document.getElementById('dosha-panel');dp.style.display='block';
+    const doshaColors={Vata:'#60a5fa',Pitta:'#f87171',Kapha:'#4ade80'};
+    const doshaEmoji={Vata:'💨',Pitta:'🔥',Kapha:'💧'};
+    const pri=da.primary_imbalance||'Pitta';const sec=da.secondary_imbalance||'Vata';
+    document.getElementById('dosha-primary').innerHTML=`<div style="flex:1;text-align:center;padding:10px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid ${doshaColors[pri]||'#fbbf24'}33"><span style="font-size:22px">${doshaEmoji[pri]||'🔥'}</span><div style="font-size:13px;font-weight:700;color:${doshaColors[pri]||'#fbbf24'};margin-top:4px">${pri}</div><div style="font-size:10px;color:rgba(255,255,255,.3)">PRIMARY</div></div><div style="flex:1;text-align:center;padding:10px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.08)"><span style="font-size:22px">${doshaEmoji[sec]||'💨'}</span><div style="font-size:13px;font-weight:600;color:${doshaColors[sec]||'#60a5fa'};margin-top:4px">${sec}</div><div style="font-size:10px;color:rgba(255,255,255,.3)">SECONDARY</div></div><div style="flex:1;text-align:center;padding:10px;background:rgba(255,255,255,.02);border-radius:10px;border:1px solid rgba(255,255,255,.08)"><span style="font-size:22px">🧬</span><div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.6);margin-top:4px">${da.prakriti_indication||'Pitta-Vata'}</div><div style="font-size:10px;color:rgba(255,255,255,.3)">PRAKRITI</div></div>`;
+    document.getElementById('dosha-explain').textContent=da.explanation||'';
+  }
+  const box=document.getElementById('rconcerns');box.innerHTML='';
+  const sc=s=>s==='attention'?'#ef4444':s==='moderate'?'#eab308':'#22c55e';
+  const sl=s=>s==='attention'?'NEEDS ATTENTION':s==='moderate'?'MODERATE':'MILD';
+  const sb=s=>s==='attention'?'rgba(239,68,68,.1)':s==='moderate'?'rgba(234,179,8,.1)':'rgba(34,197,94,.1)';
+  let ac=0;
+  d.concerns.forEach((c,i)=>{if(c.severity==='attention'||c.severity==='moderate')ac++;
+    setTimeout(()=>{const e=document.createElement('div');e.className='cc';e.style.borderLeft='3px solid '+sc(c.severity);
+      const ayurRef=c.ayurvedic_reference?`<div style="margin-top:10px;padding:8px 10px;background:rgba(251,191,36,.04);border:1px solid rgba(251,191,36,.1);border-radius:8px"><p style="font-size:11px;color:#fbbf24;line-height:1.5;margin:0">🕉️ <strong>Ayurvedic Reference:</strong> ${c.ayurvedic_reference}</p></div>`:'';
+      e.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:6px"><span style="font-size:14.5px;font-weight:600">${c.emoji} ${c.area}</span><span class="tg" style="background:${sb(c.severity)};color:${sc(c.severity)};font-size:9px">${sl(c.severity)}</span></div><p style="font-size:12.5px;color:rgba(255,255,255,.42);line-height:1.6">${c.finding}</p>${ayurRef}<div style="margin-top:10px;display:flex;align-items:center;gap:8px"><div class="br" style="flex:1"><div class="f" style="width:${c.score}%;background:${sc(c.severity)}"></div></div><span style="font-size:11px;color:rgba(255,255,255,.28)">${c.score}/100</span></div>`;box.appendChild(e);if(navigator.vibrate&&c.severity==='attention')navigator.vibrate(50);
+      if(i===d.concerns.length-1){setTimeout(()=>{document.getElementById('rwc').textContent=ac+' of '+d.concerns.length;document.getElementById('rwarn').style.display='block';
+        if(d.ayurvedic_note){document.getElementById('ayur-note').textContent='🕉️ '+d.ayurvedic_note;document.getElementById('ayur-note-box').style.display='block'}
+        if(d.overall_note){document.getElementById('rnote').textContent='"'+d.overall_note+'"';document.getElementById('rnote').style.display='block'}document.getElementById('sharebtn').style.display='block';document.getElementById('treatbtn').style.display='block';document.getElementById('friendbtn').style.display='block';document.getElementById('treatsub').style.display='block'},500)}
+    },(i+1)*600)
+  });
+}
+
+// PRODUCTS
+function renderProds(){if(!result||!result.products||document.getElementById('prods').children.length>0)return;
+  const box=document.getElementById('prods');let tp=0,to=0;
+  document.getElementById('time-msg').textContent=getTimeMsg();
+  result.products.forEach((p,i)=>{tp+=p.price;to+=p.original;const disc=Math.round((1-p.price/p.original)*100);const e=document.createElement('div');e.className='pc';e.style.animation='fu .4s ease '+(i*.15)+'s both';e.innerHTML=`<div class="tg" style="background:rgba(220,38,38,.1);color:#dc2626;margin-bottom:10px">${p.tag}</div><h3 style="font-size:16px;font-weight:600;margin-bottom:5px;line-height:1.3">${p.name}</h3><p style="font-size:12.5px;color:rgba(255,255,255,.38);line-height:1.5;margin-bottom:10px">${p.reason}</p><div style="display:flex;align-items:center;gap:6px;margin-bottom:10px"><span style="font-size:11px;color:#fbbf24">★ ${p.rating}</span><span style="font-size:11px;color:rgba(255,255,255,.22)">(${p.reviews} reviews)</span></div><div style="background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.1);border-radius:8px;padding:8px 10px;margin-bottom:12px"><p style="font-size:11.5px;color:#86efac;margin:0">📊 ${p.urgency}</p></div><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><div><span style="font-size:21px;font-weight:700">₹${p.price}</span><span style="font-size:13px;color:rgba(255,255,255,.22);text-decoration:line-through;margin-left:6px">₹${p.original}</span><span style="font-size:11px;color:#22c55e;margin-left:6px;font-weight:600">${disc}% OFF</span></div><button class="b b2" style="padding:9px 16px;font-size:12.5px;font-weight:600;width:auto;max-width:140px" onclick="buyOne(${i})">Add to Plan</button></div>`;box.appendChild(e)});
+  document.getElementById('bprice').textContent='₹'+tp.toLocaleString();document.getElementById('borig').textContent='₹'+to.toLocaleString();document.getElementById('bsave').textContent='SAVE '+Math.round((1-tp/to)*100)+'%';
+}
+let tM=14,tS=59,tOn=false;function startTimer(){if(tOn)return;tOn=true;setInterval(()=>{tS--;if(tS<0){tS=59;tM=Math.max(0,tM-1)}document.getElementById('tmr').textContent=tM+':'+tS.toString().padStart(2,'0')},1000)}
+function buyOne(i){const p=result.products[i];if(p&&p.affiliate_url&&p.affiliate_url!=='#')window.open(p.affiliate_url,'_blank');else alert('Product link: '+p.name)}
+function buyAll(){const u=result.products.find(p=>p.affiliate_url&&p.affiliate_url!=='#');if(u)window.open(u.affiliate_url,'_blank');else alert('Bundle purchase')}
+
+// SHARE SCORE CARD
+function shareScore(){
+  const m=document.getElementById('sharemodal');m.style.display='flex';
+  const c=document.getElementById('sharecanvas'),x=c.getContext('2d');
+  x.fillStyle='#0a0a0a';x.fillRect(0,0,540,540);
+  // Gradient accent
+  const g=x.createLinearGradient(0,0,540,0);g.addColorStop(0,'#dc2626');g.addColorStop(1,'#991b1b');
+  x.fillStyle=g;x.fillRect(0,0,540,6);
+  // Title
+  x.fillStyle='#e94560';x.font='bold 28px Plus Jakarta Sans,sans-serif';x.textAlign='center';x.fillText('DermaAI Clinical Scan',270,50);
+  // Score circle
+  x.beginPath();x.arc(270,160,70,0,Math.PI*2);x.strokeStyle='rgba(255,255,255,0.1)';x.lineWidth=8;x.stroke();
+  x.beginPath();const score=result.overall_score;const color=score>=70?'#22c55e':score>=50?'#eab308':'#ef4444';
+  x.arc(270,160,-Math.PI/2,(-Math.PI/2)+(Math.PI*2*score/100));x.strokeStyle=color;x.lineWidth=8;x.stroke();
+  x.fillStyle='#ffffff';x.font='bold 48px Plus Jakarta Sans,sans-serif';x.fillText(score,270,175);
+  x.fillStyle='rgba(255,255,255,0.4)';x.font='14px Plus Jakarta Sans,sans-serif';x.fillText('SKIN HEALTH SCORE',270,220);
+  // Concerns preview
+  x.textAlign='left';let y=260;
+  result.concerns.slice(0,3).forEach(c=>{
+    const col=c.severity==='attention'?'#ef4444':c.severity==='moderate'?'#eab308':'#22c55e';
+    x.fillStyle=col;x.fillRect(30,y,4,35);
+    x.fillStyle='#ffffff';x.font='bold 14px Plus Jakarta Sans,sans-serif';x.fillText(c.emoji+' '+c.area,44,y+15);
+    x.fillStyle='rgba(255,255,255,0.35)';x.font='12px Plus Jakarta Sans,sans-serif';x.fillText('Score: '+c.score+'/100',44,y+30);
+    y+=50;
+  });
+  // CTA
+  x.textAlign='center';x.fillStyle=g;x.fillRect(40,430,460,50);
+  x.fillStyle='#ffffff';x.font='bold 16px Plus Jakarta Sans,sans-serif';x.fillText("What's YOUR score? Scan free →",270,460);
+  // URL
+  x.fillStyle='rgba(255,255,255,0.25)';x.font='12px Plus Jakarta Sans,sans-serif';x.fillText(window.location.hostname,270,510);
+}
+function closeShare(){document.getElementById('sharemodal').style.display='none'}
+function downloadShare(){const c=document.getElementById('sharecanvas');const a=document.createElement('a');a.download='my-dermaai-score.png';a.href=c.toDataURL('image/png');a.click();closeShare()}
+function whatsappShare(){const c=document.getElementById('sharecanvas');c.toBlob(blob=>{if(navigator.share){navigator.share({title:'My DermaAI Score',text:'My skin health score is '+result.overall_score+'/100. What\'s yours? Scan free: '+window.location.href,url:window.location.href}).catch(()=>{})}else{window.open('https://wa.me/?text=My%20skin%20score%20is%20'+result.overall_score+'/100.%20Scan%20yours%20free:%20'+encodeURIComponent(window.location.href),'_blank')}closeShare()},'image/png')}
+
+// SCAN A FRIEND
+function scanFriend(){result=null;document.getElementById('prods').innerHTML='';document.getElementById('rconcerns').innerHTML='';tOn=false;tM=14;tS=59;go('cam')}
+
+// DEMO DATA
+function getDemo(){const r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;return{overall_score:r(52,66),estimated_age_range:"25-32",skin_type:"combination",percentile_worse_than:r(60,75),dosha_assessment:{primary_imbalance:"Pitta",secondary_imbalance:"Vata",prakriti_indication:"Pitta-Vata",explanation:"Your facial analysis reveals dominant Pitta imbalance — indicated by the pigmentation pattern, temple-area breakouts, and early greying tendency. Secondary Vata signs are visible in the under-eye dryness and forehead lines suggesting intestinal stress."},concerns:[{area:"Under-Eye Region",severity:"moderate",emoji:"🔬",finding:"Mild periorbital darkening with early hollowness. Collagen density "+r(14,20)+"% below optimal. Screen-related strain pattern. Fully reversible.",ayurvedic_reference:"Per Charaka Samhita Sutra Sthana, periorbital darkening indicates Vata-Pitta vitiation in Rasa-Rakta Dhatu. Ashtanga Hridaya maps this zone to Vrikka (kidney) function — suggesting impaired fluid metabolism.",score:r(35,48)},{area:"Cheek Pigmentation",severity:"attention",emoji:"🧬",finding:"Asymmetric melanin deposits on malar region, left side pronounced. UV-induced photodamage. Treatable at current stage.",ayurvedic_reference:"Charaka Chikitsa Sthana 7 classifies this as Vyanga — hyperpigmentation caused by Bhrajaka Pitta vitiation in the 3rd skin layer (Shweta). Sushruta Nidana 13 links cheek-zone discoloration to Amashaya (stomach) and Phupphusa (lung) stress.",score:r(28,40)},{area:"Forehead Texture",severity:"moderate",emoji:"🔍",finding:"Pore density "+r(18,26)+"% above baseline. Dehydration-linked surface roughness. T-zone sebaceous overactivity. Responsive to treatment.",ayurvedic_reference:"Ashtanga Hridaya Sutra Sthana maps forehead to Pakwashaya (intestines) and Vata Dosha. The texture irregularity suggests Twak Sharira deviation from Snigdha-Shlakshna state described in Charaka Vimana Sthana as indicators of healthy skin (Twaksara Purusha).",score:r(38,52)},{area:"Hair Density",severity:"attention",emoji:"⚡",finding:"Temporal hairline recession indicators. Strand density reduced. Follicular miniaturization suggests stress-related thinning. "+r(88,96)+"% reversible.",ayurvedic_reference:"Sushruta Nidana 13 defines this as early Khalitya — hair loss from Pitta + Vata entering Romakupa (hair follicles). Charaka Chikitsa 26 states Palitya and Khalitya arise when excess Pitta 'cooks' the hair root, a condition in Kriyakala Stage 3 (Prasara) — still fully reversible.",score:r(25,38)},{area:"Skin Elasticity",severity:"mild",emoji:"📊",finding:"Jawline within range but earliest elastin degradation signs. Faint nasolabial development. Preventive care delays sagging 5-7 years.",ayurvedic_reference:"Per Ashtanga Hridaya, jawline zone correlates with Shukra/Artava Dhatu and Kapha Dosha. Early firmness loss indicates Kapha depletion in Meda-Mamsa Dhatu with rising Vata — described in Charaka Sutra 20 as Kshipra Vali (premature wrinkling) in Vata-dominant constitution.",score:r(45,58)}],overall_note:"Your most critical concerns are still highly reversible. Acting within 30 days gives best results.",ayurvedic_note:"Per Kriyakala framework (Sushruta Samhita), your concerns are at Sthana Samshraya stage (Stage 4 of 6) — the dosha has localized but not yet manifested fully. Shamana Chikitsa (pacifying therapy) with targeted herbs can reverse this before progression to Vyakti (Stage 5).",products:[{name:"mCaffeine Coffee Under Eye Cream",tag:"FOR YOUR UNDER-EYES",reason:"Targets dark circles detected",price:349,original:599,rating:4.3,reviews:"42,847",urgency:"94% saw results in 15 days",affiliate_url:"https://www.amazon.in/s?k=mcaffeine+under+eye+cream&tag=dermaai-21"},{name:"Minimalist Hair Growth Actives 18%",tag:"FOR YOUR HAIR CONCERN",reason:"Redensyl matched to your thinning",price:699,original:799,rating:4.1,reviews:"31,892",urgency:"214% growth in clinical trials",affiliate_url:"https://www.amazon.in/s?k=minimalist+hair+growth+serum&tag=dermaai-21"},{name:"Garnier Bright Complete Vitamin C Serum",tag:"FOR YOUR PIGMENTATION",reason:"Targets your melanin irregularity",price:249,original:399,rating:4.1,reviews:"89,456",urgency:"83% saw spot reduction in 3 weeks",affiliate_url:"https://www.amazon.in/s?k=garnier+vitamin+c+serum&tag=dermaai-21"}]}}
+</script>
+</body>
+</html>
