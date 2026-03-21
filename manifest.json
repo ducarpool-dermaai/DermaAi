@@ -1,0 +1,26 @@
+{
+  "name": "Derma.AI — Skin Scanner",
+  "short_name": "Derma.AI",
+  "description": "AI-powered skin health analysis. Scan your face in 30 seconds.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FDFCFB",
+  "theme_color": "#FDFCFB",
+  "categories": ["health", "beauty"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
